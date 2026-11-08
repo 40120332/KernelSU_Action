@@ -139,8 +139,8 @@ build_kernel() {
 
 	info "make ${args}"
 	# shellcheck disable=SC2086
-	make -j"$(nproc --all)" CC="$cc" $args \
-		|| die "kernel build failed"
+		make -j"$(nproc --all)" CC="$cc" $args 2>&1 | tee "${WORKSPACE}/kernel-build.log" \
+		|| { grep -n -iE 'error:|fatal:|undefined reference' "${WORKSPACE}/kernel-build.log" | tail -40 || true; die "kernel build failed"; }
 
 	endgroup
 }
